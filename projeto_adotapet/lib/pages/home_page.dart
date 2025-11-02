@@ -26,15 +26,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: pastelBlue,
-        title: const Text(
-          'AdotaPet',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        elevation: 2,
-      ),
+      
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: pages[_selectedIndex],

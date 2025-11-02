@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PetCard extends StatefulWidget {
   final String name;
@@ -6,6 +7,10 @@ class PetCard extends StatefulWidget {
   final String photoUrl;
   final Color pastelOrange;
   final Color pastelBlue;
+  final String shelterName; // órgão doador
+  final String age;
+  final String breed;
+  final String size;
 
   const PetCard({
     super.key,
@@ -14,6 +19,10 @@ class PetCard extends StatefulWidget {
     required this.photoUrl,
     required this.pastelOrange,
     required this.pastelBlue,
+    this.shelterName = "Abrigo São Cão",
+    this.age = "2 anos",
+    this.breed = "SRD",
+    this.size = "Médio",
   });
 
   @override
@@ -32,9 +41,34 @@ class _PetCardState extends State<PetCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 📸 Foto grande
+          // 🏷️ ÓRGÃO DOADOR (Topo do Card)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.home_work, color: Colors.white),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    widget.shelterName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const Icon(Icons.more_vert),
+              ],
+            ),
+          ),
+
+          // 📸 FOTO GRANDE
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(0)),
             child: Image.network(
               widget.photoUrl,
               height: 300,
@@ -49,40 +83,53 @@ class _PetCardState extends State<PetCard> {
             ),
           ),
 
-          // ❤️ Ícones abaixo da foto
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    _liked ? Icons.favorite : Icons.favorite_border,
-                    color: _liked ? widget.pastelOrange : Colors.grey[700],
-                    size: 28,
-                  ),
-                  onPressed: () => setState(() => _liked = !_liked),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.pastelBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Solicitação de adoção enviada para ${widget.name}!')),
-                    );
-                  },
-                  icon: const Icon(Icons.pets, color: Colors.white, size: 18),
-                  label: const Text('Adotar', style: TextStyle(color: Colors.white)),
-                ),
-              ],
+          // ❤️ ÍCONES DE INTERAÇÃO (CURTIR + COMPARTILHAR + ADOTAR)
+          // ❤️ ÍCONES DE INTERAÇÃO (CURTIR + COMPARTILHAR + ADOTAR)
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        children: [
+          IconButton(
+            icon: Icon(
+              _liked ? Icons.favorite : Icons.favorite_border,
+              color: _liked ? widget.pastelOrange : Colors.grey[700],
+              size: 28,
             ),
+            onPressed: () => setState(() => _liked = !_liked),
           ),
+          IconButton(
+            icon: Icon(Icons.share, color: widget.pastelOrange, size: 26),
+            onPressed: () {
+              Share.share(
+                '🐾 Olha só o ${widget.name}! ${widget.description}\nAdote também no AdotaPet 💕',
+              );
+            },
+          ),
+        ],
+      ),
+      ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: widget.pastelOrange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Solicitação de adoção enviada para ${widget.name}!')),
+          );
+        },
+        icon: const Icon(Icons.pets, color: Colors.white, size: 18),
+        label: const Text('Adotar', style: TextStyle(color: Colors.white)),
+      ),
+    ],
+  ),
+),
 
-          // 🐾 Legenda
+          // 🐾 NOME E DESCRIÇÃO ABAIXO
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Column(
@@ -90,16 +137,38 @@ class _PetCardState extends State<PetCard> {
               children: [
                 Text(
                   widget.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(widget.description, style: const TextStyle(color: Colors.black87)),
+                const SizedBox(height: 10),
+
+                // 🏷️ CATEGORIAS (idade, raça, tamanho)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    _buildChip('Idade: ${widget.age}', widget.pastelBlue),
+                    _buildChip('Raça: ${widget.breed}', widget.pastelOrange),
+                    _buildChip('Tamanho: ${widget.size}', Colors.teal),
+                  ],
+                ),
               ],
             ),
           ),
           const SizedBox(height: 8),
         ],
       ),
+    );
+  }
+
+  Widget _buildChip(String label, Color color) {
+    return Chip(
+      label: Text(label, style: const TextStyle(color: Colors.white)),
+      backgroundColor: color,
     );
   }
 }
