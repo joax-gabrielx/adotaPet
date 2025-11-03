@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import '../data/favorites.dart';
 
 class PetCard extends StatefulWidget {
   final String name;
@@ -32,10 +33,9 @@ class PetCard extends StatefulWidget {
 }
 
 class _PetCardState extends State<PetCard> {
-  bool _liked = false;
-
   @override
   Widget build(BuildContext context) {
+    bool _liked = favoritePets.any((pet) => pet['name'] == widget.name);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -100,7 +100,34 @@ class _PetCardState extends State<PetCard> {
                         color: _liked ? widget.pastelOrange : widget.pastelOrange,
                         size: 28,
                       ),
-                      onPressed: () => setState(() => _liked = !_liked),
+                      onPressed: () {
+                        if (_liked) {
+                          favoritePets.removeWhere((pet) => pet['name'] == widget.name);
+                        } else {
+                          favoritePets.add({
+                            'name': widget.name,
+                            'photo': widget.photoUrl,
+                            'description': widget.description,
+                            'shelter': widget.shelterName,
+                            'age': widget.age,
+                            'breed': widget.breed,
+                            'size': widget.size,
+                            'sex': widget.sex,
+                          });
+                        }
+                        setState(() {}); // Atualiza o ícone do coração
+                        
+                        // Mostra uma mensagem de confirmação
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(_liked 
+                              ? '${widget.name} removido dos favoritos'
+                              : '${widget.name} adicionado aos favoritos'
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
                     ),
                     // 📤 COMPARTILHAR
                     IconButton(
